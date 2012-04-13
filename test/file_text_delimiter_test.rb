@@ -1,24 +1,6 @@
 require "test/unit"
 require "file_text_delimiter"  # Added
-
-
-class Teste01 < FileTextDelimiter::ClassDelimiter
-    attr_delimiter :prontuario,           :delimiter => 10
-    attr_delimiter :nome,                 :delimiter => 40, :format_get => Proc.new{|n| n.strip}
-    attr_delimiter :data_coleta,          :delimiter => 10, :format_get => Proc.new{|data| d, m, a = data.split("/"); Time.local(a,m,d)}
-    attr_delimiter :codigo_exame,         :delimiter => 20, :format_get => Proc.new{|n| n.strip}
-    attr_delimiter :cpf,                  :delimiter => 11
-    attr_delimiter :data_nascimento,      :delimiter => 10
-    attr_delimiter :sexo,                 :delimiter => 1,  :format_get => Proc.new{|s| (s == "M") ? 1 : 2} 
-end
-
-class ExportList < FileTextDelimiter::ClassDelimiter
-
-    attr_delimiter :name,        :delimiter => 10
-    attr_delimiter :description, :delimiter => 50
-    attr_delimiter :value,       :delimiter => 10, :format_set => Proc.new{|v| v.to_s.rjust(10,"0")}
-    
-end
+require "test/class_tester"
 
 class FileTextDelimiterTest < Test::Unit::TestCase
    def test_parse_in_file01
@@ -40,4 +22,16 @@ class FileTextDelimiterTest < Test::Unit::TestCase
     assert_equal "banana    12 size                                           00000025.0", export_list.to_text
   end
   
+
+  def test_import_file_multiple_format
+    objects = FileTextDelimiter::Document.parse_file("test/files_test/teste_02.txt", [Product, ListTotal])
+
+    product = objects.first
+    assert_equal "01",           product.type
+    assert_equal "Apple     ",   product.name
+
+    total = objects.last
+    assert_equal "02",           total.type
+    assert_equal "00000030.9",   total.value    
+  end
 end
