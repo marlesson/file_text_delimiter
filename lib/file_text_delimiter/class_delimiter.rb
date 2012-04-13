@@ -53,7 +53,7 @@ module FileTextDelimiter
 					value = self.class.formats_set[column].call(value)
 				end
 
-				text <<  value.ljust(size)
+				text <<  value.to_s.ljust(size)
 			end			
 			text
 		end
