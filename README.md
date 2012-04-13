@@ -1,7 +1,7 @@
 # FileTextDelimiter - Análise de arquivos de texto
 
-**FileTextDelimiter** É um gem para simplificar e organizar a realização de análise em arquivos de texto documentados e 
-organizados. Podendo gerar tanto a importação de um arquivo de texto para objetos quanto a exportação de objetos para texto
+**FileTextDelimiter** É um gem para simplificar e organizar análise de arquivos texto com padrões. 
+Podendo gerar tanto a importação de um arquivo de texto para objetos quanto a exportação de objetos para texto.
 
 
 ## Uso
@@ -47,12 +47,54 @@ files_in = FileTextDelimiter::Document.parse_file("file_int.txt", FileIn)
 
 #### Arquivos de texto com multiplas formatações
 
-No caso do arquivo de texto apresentar multiplas formatações distintas, podemos criar várias classes herdadas da 
+No caso do arquivo de texto apresentar multiplas formatações, podemos criar várias classes herdadas da 
 `FileTextDelimiter::ClassDelimiter` e passar como parametro para a função de parse_file.
-O que irá definir qual classe deve representar cada linha do arquivo e a função `line_match(line)` que deve ser definida
+O que irá definir qual classe deve representar cada linha do arquivo e a função `self.line_match(line)` que deve ser definida
 em todas as classes.
 
+O arquivo de texto abaixo tem dois tipos de formatação.
 
+* `01` que indica o produto
+* `02` que indica o total
+
+
+```txt
+     1         2         3         4         5         6         7         8         9        10        11
+0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345
+                        
+01Apple     1000000020.6
+01banana    0500000010.3
+02          1500000030.9
+```
+
+```ruby
+class Product < FileTextDelimiter::ClassDelimiter
+    attr_delimiter :type,    :delimiter => 2
+    attr_delimiter :name,    :delimiter => 10
+    attr_delimiter :lenght,  :delimiter => 2
+    attr_delimiter :value,   :delimiter => 10
+    
+    def self.line_match(line)
+     line[0...2] == "01"
+    end
+end
+
+class ListTotal < FileTextDelimiter::ClassDelimiter
+    attr_delimiter :type,    :delimiter => 2
+    attr_delimiter :lenght,  :delimiter => 12
+    attr_delimiter :value,   :delimiter => 10
+    
+    def self.line_match(line)
+     line[0...2] == "02"
+    end
+end
+
+objects = FileTextDelimiter::Document.parse_file("file_int.txt", [Product, ListTotal])
+
+```
+
+A `self.line_match` deve retornar `true` no caso da linha 'casar' com a definição da classe. Assim os objetos retornados 
+dependem da linha.
 
 ### Exportar arquivo de texto
 
@@ -67,18 +109,19 @@ class ExportList < FileTextDelimiter::ClassDelimiter
     
 end
 ```
+Criado o objeto e gerando o texto formatado seguindo a documentação na classe
 
 ```ruby
-
 export_list = ExportList.new(:name => "banana", :description => "12 size", :value => 25.0)
 export_list.to_text
-
 ```
 
 Resultado final 
 
 ```txt
-     1         2         3         4         5         6         7    
-0123456789012345678901234567890123456789012345678901234567890123456789
 banana    12 size                                           00000025.0
 ```
+
+## Issues
+
+Please report any issues to the GitHub Issue tracker (https://github.com/marlesson/file_text_delimiter).
