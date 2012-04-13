@@ -1,6 +1,8 @@
 module FileTextDelimiter
-	class ClassDelimiter
+	class SizeTextNotSuporte < Exception; end
 
+	class ClassDelimiter
+  	
 		class << self; attr_accessor :columns, :formats_get, :formats_set; end
 
 		def self.attr_delimiter(column, params = {})
@@ -9,6 +11,8 @@ module FileTextDelimiter
 			self.columns			||= []
 			self.formats_get 	||= {}
 			self.formats_set	||= {}
+
+			raise ArgumentNotFound, "Argument :delimiter not found" if params[:delimiter].nil?
 
 			self.columns << [column, params[:delimiter]]
 			self.formats_get[column] = params[:format_get] if not params[:format_get].nil?
@@ -23,6 +27,8 @@ module FileTextDelimiter
 				column 	= column_value[0]
 				size 		= column_value[1]
 				value		= line[x...(x+size)]
+
+				raise SizeTextNotSuporte, "Size text not suporte for range(#{x},#{x+size})" if value.nil?
 
 				if not self.formats_get[column].nil? and self.formats_get[column].instance_of? Proc
 					value = self.formats_get[column].call(value)
