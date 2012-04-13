@@ -5,6 +5,12 @@ module FileTextDelimiter
   	
 		class << self; attr_accessor :columns, :formats_get, :formats_set; end
 
+		def initialize(attributes = {})
+			attributes.each do |column, value|
+				self.send("#{column.to_s}=", value)
+			end
+		end
+
 		def self.attr_delimiter(column, params = {})
 			attr_accessor column
 
@@ -53,7 +59,7 @@ module FileTextDelimiter
 					value = self.class.formats_set[column].call(value)
 				end
 
-				text <<  value.to_s.ljust(size)
+				text <<  value[0...size].to_s.ljust(size)
 			end			
 			text
 		end

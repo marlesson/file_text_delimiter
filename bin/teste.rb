@@ -32,14 +32,27 @@ class Teste2 < FileTextDelimiter::ClassDelimiter
     end
 end
 
+class ExportList < FileTextDelimiter::ClassDelimiter
+
+    attr_delimiter :name,        :delimiter => 10
+    attr_delimiter :description, :delimiter => 50
+    attr_delimiter :value,       :delimiter => 10, :format_set => Proc.new{|v| v.to_s.rjust(10,"0")}
+    
+end
+
 #puts "#{Teste.columns}"
 #puts "#{Teste2.columns}"
 
 testes = FileTextDelimiter::Document.parse_file("file_int.txt", [Teste, Teste2])
 
-puts "#{testes.size}"
+#puts "#{testes.size}"
 
 testes.each do |t|
-  puts t
+  #puts t
   #puts t.to_text
 end
+
+
+i = ExportList.new(:name => "banana       ", :description => "12 size", :value => 25.0)
+puts i.to_text
+puts i.to_text.size
